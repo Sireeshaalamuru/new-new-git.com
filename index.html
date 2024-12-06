@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Summarizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #99b0d6;
+        }
+        h1 {
+            color: #af4c87;
+        }
+        #summary {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #af4c7c;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #120d11;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .loading {
+            color: #007bff;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Article Summarizer</h1>
+    <p>Enter the URL of the article you'd like to summarize:</p>
+    <input type="text" id="url" placeholder="Enter article URL here" />
+    <button onclick="summarizeArticle()">Summarize</button>
+    
+    <div id="summary"></div>
+
+    <script>
+        const RAPIDAPI_KEY = 'YOUR_RAPIDAPI_KEY';  // Replace with your RapidAPI key
+        const RAPIDAPI_HOST = 'text-summarizer3.p.rapidapi.com';
+        const RAPIDAPI_URL = 'https://text-summarizer3.p.rapidapi.com/summarize';
+
+        async function summarizeArticle() {
+            const url = document.getElementById('url').value;
+            const summaryElement = document.getElementById('summary');
+            
+            if (!url) {
+                summaryElement.innerHTML = '<p class="error">Please enter a valid URL.</p>';
+                return;
+            }
+
+            // Show loading message
+            summaryElement.innerHTML = '<p class="loading">Summarizing...</p>';
+
+            const payload = {
+                text: url, // Passing URL as the text to summarize
+                lang: 'en'
+            };
+
+            try {
+                const response = await fetch(RAPIDAPI_URL, {
+                    method: 'POST',
+                    headers: {
+                        'X-RapidAPI-Key': RAPIDAPI_KEY,
+                        'X-RapidAPI-Host': RAPIDAPI_HOST,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    summaryElement.innerHTML = `<p class="error">${data.error}</p>`;
+                } else {
+                    summaryElement.innerHTML = `<h2>Summary:</h2><p>${data.summary}</p>`;
+                }
+            } catch (error) {
+                summaryElement.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
+
